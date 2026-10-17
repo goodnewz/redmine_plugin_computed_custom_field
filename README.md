@@ -1,11 +1,8 @@
-# This project was taken over from annikoff 
-
-see also
-
 ## ComputedCustomField plugin for Redmine
 
-[![Build Status](https://travis-ci.org/annikoff/redmine_plugin_computed_custom_field.svg?branch=master)](https://travis-ci.org/annikoff/redmine_plugin_computed_custom_field)
-[![Code Climate](https://codeclimate.com/github/annikoff/redmine_plugin_computed_custom_field/badges/gpa.svg)](https://codeclimate.com/github/annikoff/redmine_plugin_computed_custom_field)
+[![Redmine compatibility](https://github.com/goodnewz/redmine_plugin_computed_custom_field/actions/workflows/test.yml/badge.svg)](https://github.com/goodnewz/redmine_plugin_computed_custom_field/actions/workflows/test.yml)
+
+This fork maintains the plugin originally created by annikoff for Redmine 5, 6, and 7.
 
 ### Description:
 
@@ -36,28 +33,53 @@ If you need to upgrade from older versions, please check out migration section.
 
 ### Installation:
 
-Clone from GitHub
+From your Redmine application directory, clone the plugin into `plugins/computed_custom_field`. The directory name must match the registered plugin ID.
 ```sh
-# Latest version
-git clone https://github.com/annikoff/redmine_plugin_computed_custom_field.git computed_custom_field
+git clone https://github.com/goodnewz/redmine_plugin_computed_custom_field.git plugins/computed_custom_field
 ```
 
-Or download [ZIP-archive](https://github.com/annikoff/redmine_plugin_computed_custom_field/archive/master.zip) and extract it into "computed_custom_field" directory.
+Or download the [ZIP archive](https://github.com/goodnewz/redmine_plugin_computed_custom_field/archive/master.zip) and extract it into `plugins/computed_custom_field`.
 
 Run migrations
 ```sh
-rake redmine:plugins:migrate
+RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=computed_custom_field
 ```
+
+Restart Redmine after installing or updating the plugin.
 
 ### Migration:
 - Navigate to plugin folder.
 - Run `git pull`
-- Run `rake redmine:plugins:migrate`
+- From the Redmine application directory, run `RAILS_ENV=production bundle exec rake redmine:plugins:migrate NAME=computed_custom_field`.
 - In computed CF's formulas replace `%{cf_id}` constructions by `cfs[cf_id]`.
 
 ### Compatibility
 
-The plugins supports the following Redmine versions: 4.0.x, 3.4.x, 3.3.x, 3.2.x, 3.1.x, 3.0.x, 2.6.x, 2.5.x.
+This branch targets Redmine 5.x, 6.x, and 7.x. Use a Ruby version supported by your Redmine release. Older Redmine versions require an older plugin revision.
+
+The compatibility workflow runs against Redmine 5.1.12, 6.1.5, and 7.0.2 using the official Docker images and SQLite. It checks fresh installation, migration rollback and reinstall, unit and controller tests, production eager loading, and code reloads under lazy loading. The Redmine 7 job also runs the browser tests with headless Chromium. Other databases and combinations with other plugins require staging validation.
+
+Full application reload checks run on Redmine 6 and 7. Redmine 5 has an [upstream core preparation bug](https://www.redmine.org/issues/38155), so its loading checks cover lazy/eager startup and repeated plugin patching without a full application reload.
+
+### Testing
+
+Run the same checks locally from this plugin checkout with Docker:
+
+```sh
+docker run --rm \
+  --volume "$PWD:/usr/src/redmine/plugins/computed_custom_field:ro" \
+  redmine:7.0.2 bash plugins/computed_custom_field/test/compatibility/run.sh
+```
+
+Replace `7.0.2` with `5.1.12` or `6.1.5` to check the other supported release lines. The script installs test dependencies and replaces the container's database configuration; run it only in a disposable container.
+
+To run the unit and controller tests in an existing Redmine development checkout with its test database prepared:
+
+```sh
+RAILS_ENV=test bundle exec rake redmine:plugins:test NAME=computed_custom_field
+```
+
+Browser tests are kept in `test/ui` and can be run separately with `redmine:plugins:test:ui` when Chrome and the Redmine system-test dependencies are available. Add `--env RUN_UI_TESTS=1` to the Docker command above to include them in a local compatibility run.
 
 ### Examples:
 ```ruby

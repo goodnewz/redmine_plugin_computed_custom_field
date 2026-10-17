@@ -1,5 +1,17 @@
 # Change Log
 
+## Unreleased
+
+### Fixed
+- Restore fresh installation and migration rollback on Redmine 5, 6, and 7 using versioned migration classes.
+- Apply model, helper, and read-only issue patches during plugin preparation and after code reloads.
+- Reject invalid formulas using the current ActiveModel errors API.
+
+### Changed
+- Require Redmine 5 or later on this branch.
+- Replace the legacy Travis configuration with a GitHub Actions compatibility matrix and update installation instructions for this fork.
+- Update tests for current ActiveRecord APIs and add controller and reload regression coverage.
+
 ## [1.0.7](https://github.com/annikoff/redmine_plugin_computed_custom_field/releases/tag/v1.0.7) - 2019-01-13
 ### Added
 - Redmine 4.0.x support.

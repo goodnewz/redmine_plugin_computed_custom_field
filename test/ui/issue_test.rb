@@ -1,6 +1,6 @@
-require File.expand_path('../../test_helper', __FILE__)
+require_relative '../ui_helper'
 
-class ComputedCustomFieldTest < UI_TEST_CASE_CLASS
+class ComputedCustomFieldIssueSystemTest < ApplicationSystemTestCase
   fixtures FixturesHelper.fixtures
   include MethodsHelper
 
@@ -10,10 +10,11 @@ class ComputedCustomFieldTest < UI_TEST_CASE_CLASS
 
   def test_computed_cfs_should_be_readonly
     field = field_with_string_format
-    visit new_issue_path project: project
-    assert page.has_no_css?("issue_custom_field_values_#{field.id}")
+    visit new_issue_path project_id: project.id
+    assert page.has_css?('#issue_subject')
+    assert page.has_no_css?("#issue_custom_field_values_#{field.id}")
 
     visit issue_path issue
-    assert page.has_no_css?("issue_custom_field_values_#{field.id}")
+    assert page.has_no_css?("#issue_custom_field_values_#{field.id}")
   end
 end
