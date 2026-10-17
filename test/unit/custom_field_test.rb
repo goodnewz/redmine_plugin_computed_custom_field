@@ -19,6 +19,24 @@ class CustomFieldTest < ComputedCustomFieldTestCase
       field.save!
     end
     assert_match(/divided by 0/, exception.message)
+    assert_includes field.errors[:formula], 'divided by 0'
+  end
+
+  def test_invalid_formula_cannot_be_created
+    field = IssueCustomField.new(name: 'Invalid computation', field_format: 'float',
+                                 is_computed: true, formula: '1/0')
+
+    refute field.save
+    assert_includes field.errors[:formula], 'divided by 0'
+    assert field.new_record?
+  end
+
+  def test_syntax_errors_are_validation_errors
+    field = field_with_string_format
+    field.formula = '1 +'
+
+    refute field.valid?
+    assert field.errors[:formula].any?
   end
 
   def test_computed_custom_field_callbacks
@@ -33,7 +51,7 @@ class CustomFieldTest < ComputedCustomFieldTestCase
     assert field.is_computed?
     assert_equal '', field.formula
 
-    assert field.update_attributes(is_computed: false, editable: true, formula: nil)
+    assert field.update(is_computed: false, editable: true, formula: nil)
 
     assert field.is_computed?
     assert_equal '', field.formula

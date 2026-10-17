@@ -1,0 +1,30 @@
+name: Redmine compatibility
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        redmine: ['5.1.12', '6.1.5', '7.0.2']
+        include:
+          - redmine: '7.0.2'
+            ui: '1'
+    steps:
+      - uses: actions/checkout@v7
+      - name: Test migrations, formulas, controllers, and code reloads
+        run: >-
+          docker run --rm
+          --volume "$PWD:/usr/src/redmine/plugins/computed_custom_field:ro"
+          --env RUN_UI_TESTS=${{ matrix.ui || '0' }}
+          redmine:${{ matrix.redmine }}
+          bash plugins/computed_custom_field/test/compatibility/run.sh

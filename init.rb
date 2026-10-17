@@ -1,22 +1,14 @@
 Redmine::Plugin.register :computed_custom_field do
   name 'Computed custom field'
   author 'Yakov Annikov'
-  url 'https://github.com/annikoff/redmine_plugin_computed_custom_field'
+  url 'https://github.com/goodnewz/redmine_plugin_computed_custom_field'
   description ''
   version '1.0.7'
+  requires_redmine version_or_higher: '5.0.0'
   settings default: {}
 end
 
-$LOAD_PATH.unshift "#{File.dirname(__FILE__)}/lib"
-require 'computed_custom_field'
-#require 'computed_custom_field/custom_field_patch'
-require 'computed_custom_field/custom_fields_helper_patch'
-#require 'computed_custom_field/model_patch'
-#require 'computed_custom_field/issue_patch'
-require 'computed_custom_field/hooks'
-
-RedmineApp::Application.configure do
-  config.after_initialize do
-    ComputedCustomField.patch_models
-  end
-end
+# Redmine loads plugin initializers in to_prepare, including after a code reload.
+# Resolve patches through Zeitwerk each time so they apply to the current classes.
+ComputedCustomField.patch_models
+ComputedCustomField::Hooks.instance

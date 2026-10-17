@@ -1,6 +1,6 @@
-require File.expand_path('../../test_helper', __FILE__)
+require_relative '../ui_helper'
 
-class ComputedCustomFieldTest < UI_TEST_CASE_CLASS
+class ComputedCustomFieldSystemTest < ApplicationSystemTestCase
   fixtures FixturesHelper.fixtures
 
   def setup
@@ -48,7 +48,7 @@ class ComputedCustomFieldTest < UI_TEST_CASE_CLASS
     page.fill_in('Name', with: 'Computed')
     is_computed_element.click
     page.fill_in('Formula', with: formula)
-    click_button 'Save'
+    click_button 'Create', exact: true
     assert page.has_text?('Successful creation')
 
     visit edit_custom_field_path(CustomField.last)
@@ -62,10 +62,10 @@ class ComputedCustomFieldTest < UI_TEST_CASE_CLASS
     visit new_custom_field_path type: 'IssueCustomField'
 
     is_computed_element.click
-    if Redmine::VERSION.to_s > '2.6'
-      available_cfs_element.double_click
-      assert_equal 'cfs[6]', formula_element.value
-    end
+    available_cfs_element.double_click
+    selected = available_cfs_element.all('option:checked')
+    assert_equal 1, selected.size
+    assert_equal "cfs[#{selected.first[:value]}]", formula_element.value
     assert_equal IssueCustomField.all.size, page.all('#available_cfs option').size
   end
 
